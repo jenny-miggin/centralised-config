@@ -1,5 +1,14 @@
 version: 2.1
 
+parameters:
+  orb:
+    type: string
+    description: location of the orb I want to read
+    default: "https://raw.githubusercontent.com/jenny-miggin/centralised-config/refs/heads/main/.circleci/frontend-team/frontend-team.yml"
+
+orbs:
+  frontend: << pipeline.parameters.orb >>
+
 jobs:
   build:
     docker:
