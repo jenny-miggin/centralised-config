@@ -11,7 +11,7 @@ parameters:
     default: "frontend-build"
 
 orbs:
-  selected-orb: << pipeline.parameters.orb >>
+  selected-orb: "<< pipeline.parameters.orb >>"
 
 jobs:
   build:
