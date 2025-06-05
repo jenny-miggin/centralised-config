@@ -1,0 +1,11 @@
+version: 2.1
+
+jobs:
+  frontend-build:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Build my frontend app
+          command: echo "Build my frontend app"
