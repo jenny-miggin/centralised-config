@@ -36,6 +36,7 @@ workflows:
     jobs:
       - build:
           override-with: selected-orb/<< pipeline.parameters.override-job >>
+          type: no-op
       - test:
           requires:
             - build
