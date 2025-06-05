@@ -15,13 +15,7 @@ orbs:
 
 jobs:
   build:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run: 
-          name: Build my app
-          command: echo "Build my app"
+    type: no-op
   test:
     docker:
       - image: cimg/base:stable
