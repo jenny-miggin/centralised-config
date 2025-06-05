@@ -30,7 +30,8 @@ jobs:
 workflows:
   build-and-test: 
     jobs:
-      - build
+      - build:
+          override-with: frontend-build
       - test:
           requires:
             - build
