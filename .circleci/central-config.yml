@@ -33,4 +33,4 @@ workflows:
           name: << pipeline.parameters.override-job >>
       - test:
           requires:
-            - build
+            - << pipeline.parameters.override-job >>
