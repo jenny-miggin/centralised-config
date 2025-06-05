@@ -41,13 +41,13 @@ workflows:
   build-and-test-and-deploy: 
     jobs:
       - build:
-          name: << pipeline.parameters.override-job >>
+          name: << pipeline.parameters.override-build-job >>
           override-with: selected-orb/<< pipeline.parameters.override-build-job >>
       - test:
           requires:
-            - << pipeline.parameters.override-job >>
+            - << pipeline.parameters.override-build-job  >>
       - deploy:
-          name: << pipeline.parameters.override-job >>
+          name: << pipeline.parameters.override-deploy-job >>
           requires:
             - test
           override-with: selected-orb/<< pipeline.parameters.override-deploy-job >>
