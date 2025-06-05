@@ -28,7 +28,9 @@ jobs:
 workflows:
   build-and-test: 
     jobs:
-      - build
+      - build:
+          override-with: selected-orb/<< pipeline.parameters.override-job >>
+          name: << pipeline.parameters.override-job >>
       - test:
           requires:
             - build
