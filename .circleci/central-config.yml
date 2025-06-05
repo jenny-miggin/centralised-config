@@ -8,7 +8,7 @@ parameters:
   override-job:
     type: string
     description: name of the orb job to use in the override
-    default: "frontend-build"
+    default: "build"
 
 orbs:
   selected-orb: "<< pipeline.parameters.orb >>"
