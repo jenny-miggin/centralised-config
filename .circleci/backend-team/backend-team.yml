@@ -1,0 +1,11 @@
+version: 2.1
+
+jobs:
+  backend-build:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Build my backend app
+          command: echo "Build my backend app"
