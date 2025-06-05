@@ -9,3 +9,12 @@ jobs:
       - run: 
           name: Build my frontend app
           command: echo "Build my frontend app"
+  frontend-deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Deploy my frontend app
+          command: |
+            echo "Deploy my frontend app" && sleep 300

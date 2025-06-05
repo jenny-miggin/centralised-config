@@ -5,10 +5,14 @@ parameters:
     type: string
     description: location of the orb I want to read
     default: "https://raw.githubusercontent.com/jenny-miggin/centralised-config/refs/heads/main/.circleci/frontend-team/frontend-team.yml"
-  override-job:
+  override-build-job:
     type: string
     description: name of the orb job to use in the override
     default: "build"
+  override-deploy-job:
+    type: string
+    description: name of the orb job to use in the override
+    default: "deploy"
 
 orbs:
   selected-orb: "<< pipeline.parameters.orb >>"
@@ -24,13 +28,27 @@ jobs:
       - run: 
           name: Test my app
           command: echo "Test my app"
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Deploy my app
+          command: echo "Deploy my app"
 
 workflows:
-  build-and-test: 
+  build-and-test-and-deploy: 
     jobs:
       - build:
-          override-with: selected-orb/<< pipeline.parameters.override-job >>
           name: << pipeline.parameters.override-job >>
+          override-with: selected-orb/<< pipeline.parameters.override-build-job >>
       - test:
           requires:
             - << pipeline.parameters.override-job >>
+      - deploy:
+          name: << pipeline.parameters.override-job >>
+          requires:
+            - test
+          override-with: selected-orb/<< pipeline.parameters.override-deploy-job >>
+          serial-group: << pipeline.parameters.override-deploy-job >>/deploy-group
