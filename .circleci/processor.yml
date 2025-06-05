@@ -5,7 +5,7 @@ setup: true
 parameters:
   base-revision:
     type: string
-    default: "main"
+    default: "dynamic-dlc"
   output-path:
     type: string
     default: "/tmp/pipeline-parameters.json"
