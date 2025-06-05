@@ -7,7 +7,7 @@ parameters:
     default: "https://raw.githubusercontent.com/jenny-miggin/centralised-config/refs/heads/main/.circleci/frontend-team/frontend-team.yml"
 
 orbs:
-  frontend: << pipeline.parameters.orb >>
+  selected-orb: << pipeline.parameters.orb >>
 
 jobs:
   build:
@@ -31,7 +31,7 @@ workflows:
   build-and-test: 
     jobs:
       - build:
-          override-with: frontend-build
+          override-with: selected-orb/frontend-build
       - test:
           requires:
             - build
