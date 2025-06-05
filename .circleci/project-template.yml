@@ -5,6 +5,10 @@ parameters:
     type: string
     description: location of the orb I want to read
     default: "https://raw.githubusercontent.com/jenny-miggin/centralised-config/refs/heads/main/.circleci/frontend-team/frontend-team.yml"
+  override-job:
+    type: string
+    description: name of the orb job to use in the override
+    default: "frontend-build"
 
 orbs:
   selected-orb: << pipeline.parameters.orb >>
@@ -31,7 +35,7 @@ workflows:
   build-and-test: 
     jobs:
       - build:
-          override-with: selected-orb/frontend-build
+          override-with: selected-orb/<< pipeline.parameters.override-job >>
       - test:
           requires:
             - build
