@@ -38,7 +38,7 @@ jobs:
           command: echo "Deploy my app"
 
 workflows:
-  build-and-test-and-deploy: 
+  build-and-test-and-deploy-<< pipeline.parameters.override-build-job >>: 
     jobs:
       - build:
           name: << pipeline.parameters.override-build-job >>

@@ -28,7 +28,7 @@ jobs:
           base-revision: << pipeline.parameters.base-revision >>
           output-path: << pipeline.parameters.output-path >>
       - continuation/continue:
-          configuration_path: "https://raw.githubusercontent.com/jenny-miggin/centralised-config/refs/heads/main/.circleci/frontend-team/frontend-team.yml"
+          configuration_path: .circleci/central-config.yml
           parameters: << pipeline.parameters.output-path >>
 
 
