@@ -1,0 +1,20 @@
+version: 2.1
+
+jobs:
+  project-build:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Build my project app
+          command: echo "Build my project app"
+  project-deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Deploy my project app
+          command: |
+            echo "Deploy my project app" && sleep 300

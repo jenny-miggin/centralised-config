@@ -1,0 +1,20 @@
+version: 2.1
+
+jobs:
+  deploys-build:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Build my deploys app
+          command: echo "Build my deploys app"
+  deploys-deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Deploy my deploys app
+          command: |
+            echo "Deploy my deploys app" && sleep 300

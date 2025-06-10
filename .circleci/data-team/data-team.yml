@@ -1,0 +1,20 @@
+version: 2.1
+
+jobs:
+  data-team-build:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Build my data team app
+          command: echo "Build my data team app"
+  data-team-deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: 
+          name: Deploy my data team app
+          command: |
+            echo "Deploy my data team app" && sleep 300
