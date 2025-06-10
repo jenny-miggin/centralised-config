@@ -39,7 +39,6 @@ jobs:
 
 workflows:
   build-and-test-and-deploy:
-    name: build-and-test-and-deploy-<< pipeline.parameters.override-build-job >>
     jobs:
       - build:
           name: << pipeline.parameters.override-build-job >>
