@@ -128,42 +128,11 @@ The Pipeline can be defined within Project Settings > Pipelines, but can also be
 
 **Step 1: Create a Pipeline Definition**
 
-First, create a pipeline definition using the CircleCI API:
-
-```bash
-curl -X POST https://circleci.com/api/v2/project/gh/jenny-miggin/centralised-config/pipeline-definition \
-  --header "Circle-Token: $CIRCLECI_API_TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "name": "central-config-pipeline",
-    "description": "Centralised configuration pipeline for team builds",
-    "configuration_path": ".circleci/central-config.yml"
-  }'
-```
+First, create a pipeline definition using the [CircleCI API](https://circleci.com/docs/api/v2/index.html#tag/Pipeline-Definition/operation/createPipelineDefinition).
 
 **Step 2: Get Your Definition ID**
 
-List your pipeline definitions to get the definition ID:
-
-```bash
-curl -X GET https://circleci.com/api/v2/project/gh/jenny-miggin/centralised-config/pipeline-definition \
-  --header "Circle-Token: $CIRCLECI_API_TOKEN"
-```
-
-Example response:
-```json
-{
-  "items": [
-    {
-      "id": "abc123def-456-789-ghi-jklmnop",
-      "name": "central-config-pipeline",
-      "description": "Centralised configuration pipeline for team builds",
-      "configuration_path": ".circleci/central-config.yml",
-      "created_at": "2024-01-15T10:30:00Z"
-    }
-  ]
-}
-```
+[List your pipeline definitions](https://circleci.com/docs/api/v2/index.html#tag/Pipeline-Definition/operation/listPipelineDefinitions) to get the definition ID.
 
 **Step 3: Use Definition ID in Triggers**
 
