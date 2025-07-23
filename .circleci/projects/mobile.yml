@@ -1,0 +1,220 @@
+version: 2.1
+
+orbs:
+  android: circleci/android@2.3.0
+  node: circleci/node@5.1.0
+
+parameters:
+  run-e2e-tests:
+    type: boolean
+    default: false
+
+commands:
+  setup_node_dependencies:
+    description: "Install and cache Node dependencies"
+    steps:
+      - node/install-packages:
+          pkg-manager: npm
+          cache-key: "package-lock.json"
+      
+  setup_android_environment:
+    description: "Setup Android environment"
+    steps:
+      - android/install-ndk:
+          ndk-version: "25.1.8937393"
+      - run:
+          name: Accept Android SDK licenses
+          command: yes | sdkmanager --licenses || true
+      - run:
+          name: Install additional Android tools
+          command: |
+            sdkmanager "build-tools;33.0.0" "platforms;android-33" "system-images;android-30;google_apis;x86_64"
+
+  setup_ios_environment:
+    description: "Setup iOS environment"
+    steps:
+      - run:
+          name: Install CocoaPods dependencies
+          command: |
+            cd ios
+            pod install
+            cd ..
+
+jobs:
+  # Linting and unit tests
+  test:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+      - setup_node_dependencies
+      - run:
+          name: Run ESLint
+          command: npm run lint
+      - run:
+          name: Run unit tests with coverage
+          command: npm run test:coverage
+      - store_test_results:
+          path: ./coverage/junit.xml
+      - store_artifacts:
+          path: ./coverage
+          destination: coverage-reports
+
+  # Android build and test
+  build_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: "2023.07.1"
+    steps:
+      - checkout
+      - setup_node_dependencies
+      - setup_android_environment
+      - run:
+          name: Build Android APK
+          command: |
+            cd android
+            ./gradlew assembleDebug
+      - store_artifacts:
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          destination: android-build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - android/app/build/outputs/apk/debug/app-debug.apk
+
+  # iOS build and test
+  build_ios:
+    macos:
+      xcode: "15.0"
+    resource_class: macos.m1.medium.gen1
+    steps:
+      - checkout
+      - setup_node_dependencies
+      - setup_ios_environment
+      - run:
+          name: Build iOS app
+          command: |
+            npx react-native run-ios --configuration Debug --simulator="iPhone 14" --verbose
+      - run:
+          name: Archive iOS build
+          command: |
+            cd ios
+            xcodebuild -workspace DemoMobileApp.xcworkspace \
+              -scheme DemoMobileApp \
+              -configuration Debug \
+              -sdk iphonesimulator \
+              -derivedDataPath build
+      - store_artifacts:
+          path: ios/build/Build/Products/Debug-iphonesimulator/DemoMobileApp.app
+          destination: ios-build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ios/build/Build/Products/Debug-iphonesimulator/DemoMobileApp.app
+
+  # Android E2E tests
+  e2e_android:
+    executor:
+      name: android/android-machine
+      resource-class: large
+      tag: "2023.07.1"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_node_dependencies
+      - setup_android_environment
+      - run:
+          name: Create Android emulator
+          command: |
+            avdmanager create avd -n Pixel_4_API_30 -k "system-images;android-30;google_apis;x86_64" -f
+      - run:
+          name: Start Android emulator
+          command: |
+            emulator -avd Pixel_4_API_30 -no-window -no-audio -no-snapshot
+          background: true
+      - run:
+          name: Wait for emulator to boot
+          command: |
+            circle-android wait-for-boot
+      - run:
+          name: Run Android E2E tests
+          command: |
+            npm run e2e:android
+      - store_test_results:
+          path: ./e2e/results
+      - store_artifacts:
+          path: ./e2e/artifacts
+          destination: e2e-android-artifacts
+
+  # iOS E2E tests
+  e2e_ios:
+    macos:
+      xcode: "15.0"
+    resource_class: macos.m1.medium.gen1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_node_dependencies
+      - setup_ios_environment
+      - run:
+          name: Boot iOS simulator
+          command: |
+            xcrun simctl boot "iPhone 14" || true
+      - run:
+          name: Install app on simulator
+          command: |
+            xcrun simctl install booted ios/build/Build/Products/Debug-iphonesimulator/DemoMobileApp.app
+      - run:
+          name: Run iOS E2E tests
+          command: |
+            npm run e2e:ios
+      - store_test_results:
+          path: ./e2e/results
+      - store_artifacts:
+          path: ./e2e/artifacts
+          destination: e2e-ios-artifacts
+
+  # Security and quality checks
+  security_scan:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+      - setup_node_dependencies
+      - run:
+          name: Run npm audit
+          command: npm audit --audit-level=moderate
+      - run:
+          name: Check for outdated dependencies
+          command: npm outdated || true
+
+workflows:
+  build_and_test:
+    jobs:
+      - test
+      - security_scan
+      - build_android:
+          requires:
+            - test
+      - build_ios:
+          requires:
+            - test
+      - e2e_android:
+          requires:
+            - build_android
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+      - e2e_ios:
+          requires:
+            - build_ios
+          filters:
+            branches:
+              only:
+                - main
+                - develop

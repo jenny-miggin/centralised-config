@@ -1,3 +1,6 @@
+## This is an orb. To reference it in a centralised config, you need to use the following syntax:
+## selected-orb/<< pipeline.parameters.override-build-job >>
+
 version: 2.1
 
 jobs:
